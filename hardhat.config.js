@@ -16,6 +16,11 @@ module.exports = {
     networks: {
         hardhat: {
             // Uncomment these lines to use mainnet fork
+            accounts: {
+                mnemonic: process.env.MNEMONIC,
+                count: 10,
+                accountsBalance: '10000000000000000000000'
+            },
             forking: {
                 url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
                 blockNumber: 11589707
@@ -30,13 +35,17 @@ module.exports = {
         apiKey: process.env.ETHERSCAN_API
     },
     solidity: {
-        version: '0.7.6',
+        version: '0.8.4',
         settings: {
             optimizer: {
-                enabled: true,
+                enabled: false,
                 runs: 200
             }
         }
+    },
+    namedAccounts: {
+        deployer: 0,
+        tokenOwner: 1
     },
     mocha: {
         timeout: 240000

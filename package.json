@@ -1,7 +1,7 @@
 {
   "name": "swapper",
   "version": "1.0.0",
-  "description": "",
+  "description": "Multi-swap built with solidity",
   "main": "index.js",
   "scripts": {
     "test": "hardhat test",
@@ -10,7 +10,7 @@
     "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "keywords": [],
-  "author": "",
+  "author": "Joaquin Yañez",
   "license": "ISC",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -21,7 +21,7 @@
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.1.4",
-    "hardhat": "^2.0.6",
+    "hardhat": "^2.2.1",
     "hardhat-deploy": "^0.7.5",
     "hardhat-etherscan-abi": "^0.1.1",
     "hardhat-gas-reporter": "^1.0.4",
@@ -30,7 +30,10 @@
     "prettier-plugin-solidity": "^1.0.0-beta.8"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.4.0",
+    "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/contracts-upgradeable": "^4.1.0",
+    "@studydefi/money-legos": "^2.4.2",
+    "@uniswap/v2-periphery": "*",
     "dotenv": "^8.2.0"
   }
 }
