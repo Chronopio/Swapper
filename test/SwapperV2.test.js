@@ -32,7 +32,7 @@ describe('Swapper upgrade', () => {
 
             console.log('Swapper address:', swapper.address);
 
-            await swapper.swapEthForTokensBalancer(
+            await swapper.internalSwapperBalancer(
                 '0x6B175474E89094C44Da98b954EedeAC495271d0F',
                 {
                     value: ethers.utils.parseEther('0.0001'),
@@ -50,6 +50,6 @@ describe('Swapper upgrade', () => {
                 `DAI starter balance ${daiBalanceStart}`,
                 `DAI final balance ${daiBalanceEnd}`
             );
-        })
-    })
-})
+        });
+    });
+});

@@ -85,8 +85,10 @@ contract SwapperV2 is Initializable {
     }
 
     function internalSwapperBalancer(address _token) external payable {
-        BalancerInterface(balancerRouterAddress).smartSwapExactIn(
-            TokenInterface(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+        BalancerInterface(balancerRouterAddress).smartSwapExactIn{
+            value: msg.value
+        }(
+            TokenInterface(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
             TokenInterface(_token),
             msg.value,
             1,
