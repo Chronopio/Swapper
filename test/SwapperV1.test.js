@@ -2,7 +2,7 @@ const { expect } = require('chai');
 const erc20 = require('@studydefi/money-legos/erc20');
 
 describe('Swapper contract', () => {
-    let Swapper, swapper, owner, addr1, daiContract;
+    let Swapper, swapper, owner, addr1, daiContract, batContract;
 
     beforeEach(async () => {
         Swapper = await ethers.getContractFactory('SwapperV1');

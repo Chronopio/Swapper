@@ -4,13 +4,51 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-/*  Proxies are completely oblivious to the existence of constructors. So we use initializer functions. OZ provides a contract for that */
-contract SwapperV1 is Initializable {
-    // Avoiding initial values in field declarations. Constant state variables are still allowed and saves gas.
+interface BalancerInterface {
+    function smartSwapExactIn(
+        TokenInterface tokenIn,
+        TokenInterface tokenOut,
+        uint256 totalAmountIn,
+        uint256 minTotalAmountOut,
+        uint256 nPools
+    ) external payable returns (uint256 totalAmountOut);
+
+    function swapExactAmountIn(
+        address tokenIn,
+        uint256 tokenAmountIn,
+        address tokenOut,
+        uint256 minAmountOut,
+        uint256 maxPrice
+    ) external payable returns (uint256 tokenAmountOut, uint256 spotPriceAfter);
+}
+
+interface TokenInterface {
+    function balanceOf(address) external view returns (uint256);
+
+    function allowance(address, address) external view returns (uint256);
+
+    function approve(address, uint256) external returns (bool);
+
+    function transfer(address, uint256) external returns (bool);
+
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) external returns (bool);
+
+    function deposit() external payable;
+
+    function withdraw(uint256) external;
+}
+
+contract SwapperV2 is Initializable {
     address public constant uniswapRouterAddress =
         0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address private constant feeRecipient =
         0xD215De1fc9E2514Cf274df3F2378597C7Be06Aca;
+    address public constant balancerRouterAddress =
+        0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21;
 
     function initialize() public initializer {}
 
@@ -44,5 +82,15 @@ contract SwapperV1 is Initializable {
                 value: amountToSend - fee
             }(1, _path, msg.sender, block.timestamp + 300);
         }
+    }
+
+    function internalSwapperBalancer(address _token) external payable {
+        BalancerInterface(balancerRouterAddress).smartSwapExactIn(
+            TokenInterface(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2),
+            TokenInterface(_token),
+            msg.value,
+            1,
+            3
+        );
     }
 }
