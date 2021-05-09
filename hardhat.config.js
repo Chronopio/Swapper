@@ -17,8 +17,7 @@ module.exports = {
         hardhat: {
             // Uncomment these lines to use mainnet fork
             accounts: {
-                mnemonic:
-                    'school panther orbit force gauge element learn table tenant under child sad',
+                mnemonic: process.env.MNEMONIC,
                 count: 10,
                 accountsBalance: '10000000000000000000000'
             },
