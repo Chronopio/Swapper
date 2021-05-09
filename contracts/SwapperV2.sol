@@ -12,14 +12,6 @@ interface BalancerInterface {
         uint256 minTotalAmountOut,
         uint256 nPools
     ) external payable returns (uint256 totalAmountOut);
-
-    function swapExactAmountIn(
-        address tokenIn,
-        uint256 tokenAmountIn,
-        address tokenOut,
-        uint256 minAmountOut,
-        uint256 maxPrice
-    ) external payable returns (uint256 tokenAmountOut, uint256 spotPriceAfter);
 }
 
 interface TokenInterface {
@@ -54,7 +46,8 @@ contract SwapperV2 is Initializable {
 
     function internalSwapper(
         address[] memory _token,
-        uint256[] memory proportion
+        uint256[] memory proportion,
+        bool[] memory isBetterUniswap
     ) external payable {
         require(msg.value > 0, "You can't trade if you don't send money");
         require(
@@ -62,37 +55,47 @@ contract SwapperV2 is Initializable {
             "You must set a proportion for each token"
         );
         require(
+            _token.length == isBetterUniswap.length,
+            "You must set a proportion for each token"
+        );
+        require(
             (msg.value / 10000) * 10000 == msg.value,
             "The amount is too low"
         );
 
-        address[] memory _path = new address[](2);
         uint256 arrayLength = _token.length;
 
         for (uint256 i = 0; i < arrayLength; i++) {
-            uint256 amountToSend = (msg.value * (proportion[i] * 100)) / 10000;
-            uint256 fee = amountToSend / 10000;
 
-            _path[0] = IUniswapV2Router02(uniswapRouterAddress).WETH();
-            _path[1] = _token[i];
+            uint256 sentAmount = (msg.value * (proportion[i] * 100)) / 10000;
+            uint256 fee = sentAmount / 10000;
+            uint256 amountToSend = sentAmount - fee;
 
             payable(feeRecipient).transfer(fee);
 
-            IUniswapV2Router02(uniswapRouterAddress).swapExactETHForTokens{
-                value: amountToSend - fee
-            }(1, _path, msg.sender, block.timestamp + 300);
-        }
-    }
+            if (isBetterUniswap[i] == true) {
+                address[] memory _path = new address[](2);
 
-    function internalSwapperBalancer(address _token) external payable {
-        BalancerInterface(balancerRouterAddress).smartSwapExactIn{
-            value: msg.value
-        }(
-            TokenInterface(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
-            TokenInterface(_token),
-            msg.value,
-            1,
-            3
-        );
+                _path[0] = IUniswapV2Router02(uniswapRouterAddress).WETH();
+                _path[1] = _token[i];
+
+                IUniswapV2Router02(uniswapRouterAddress).swapExactETHForTokens{
+                    value: amountToSend
+                }(1, _path, msg.sender, block.timestamp + 300);
+            } else {
+                TokenInterface tokenOut = TokenInterface(_token[i]);
+
+                BalancerInterface(balancerRouterAddress).smartSwapExactIn{
+                    value: amountToSend
+                }(
+                    TokenInterface(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE),
+                    TokenInterface(_token[i]),
+                    amountToSend,
+                    1,
+                    1
+                );
+                tokenOut.transfer(msg.sender, tokenOut.balanceOf(address(this)));
+            }
+        }
     }
 }
