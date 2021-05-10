@@ -118,7 +118,7 @@ describe('Swapper upgrade', () => {
             console.log('Final owner balance', finalBalance.toString());
 
             expect(finalBalance.gt(initialBalance)).to.be.true;
-        })
+        });
 
         it('should select the best DEX to swap and send a swap request there with 3 tokens', async () => {
             const daiBalanceWeiStart = await daiContract.balanceOf(
@@ -148,34 +148,40 @@ describe('Swapper upgrade', () => {
                 `ZRX initial balance ${zrxBalanceStart}`
             );
 
-            let tokensArray = ['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x0d8775f648430679a709e98d2b0cb6250d2887ef', '0xE41d2489571d322189246DaFA5ebDe1F4699F498'];
+            let tokensArray = [
+                '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+                '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
+                '0xE41d2489571d322189246DaFA5ebDe1F4699F498'
+            ];
             let dexArray = [];
             let response;
             let isBetterUniswap;
 
             for (let i = 0; i < tokensArray.length; i++) {
-                const fromToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+                const fromToken = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
                 const toToken = tokensArray[i];
 
-                response = await axios.get(`https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${fromToken}&toTokenAddress=${toToken}&amount=10000000000000000&protocols=UNISWAP_V2,BALANCER,WETH`)
+                response = await axios.get(
+                    `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${fromToken}&toTokenAddress=${toToken}&amount=${ethers.utils.parseEther(
+                        '0.01'
+                    )}&protocols=UNISWAP_V2,BALANCER,WETH`
+                );
 
-                console.log(response.data.protocols[0][1][0].name)
+                console.log(response.data.protocols[0][1][0].name);
 
-                isBetterUniswap = response.data.protocols[0][1][0].name === 'UNISWAP_V2' ? true : false;
+                isBetterUniswap =
+                    response.data.protocols[0][1][0].name === 'UNISWAP_V2'
+                        ? true
+                        : false;
 
-                dexArray.push(isBetterUniswap)
+                dexArray.push(isBetterUniswap);
             }
-            console.log(dexArray)
+            console.log(dexArray);
 
-            await swapper.internalSwapper(
-                tokensArray,
-                [30,30,40],
-                dexArray,
-                {
-                    value: ethers.utils.parseEther('0.01'),
-                    gasLimit: 1000000
-                }
-            );
+            await swapper.internalSwapper(tokensArray, [30, 30, 40], dexArray, {
+                value: ethers.utils.parseEther('0.01'),
+                gasLimit: 1000000
+            });
 
             const batBalanceWeiEnd = await batContract.balanceOf(owner.address);
             const batBalanceEnd = ethers.utils.formatUnits(
@@ -202,6 +208,6 @@ describe('Swapper upgrade', () => {
             expect(daiBalanceEnd > daiBalanceStart).to.be.true;
             expect(batBalanceEnd > batBalanceStart).to.be.true;
             expect(zrxBalanceEnd > zrxBalanceStart).to.be.true;
-        })
+        });
     });
 });
