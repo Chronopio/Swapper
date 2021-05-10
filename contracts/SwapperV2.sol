@@ -50,7 +50,8 @@ contract SwapperV2 is Initializable {
         bool[] memory isBetterUniswap
     ) external payable {
         require(
-            _token.length == proportion.length && _token.length == isBetterUniswap.length,
+            _token.length == proportion.length &&
+                _token.length == isBetterUniswap.length,
             "You must set a proportion for each token"
         );
         require(
@@ -61,7 +62,6 @@ contract SwapperV2 is Initializable {
         uint256 arrayLength = _token.length;
 
         for (uint256 i = 0; i < arrayLength; i++) {
-
             uint256 sentAmount = (msg.value * (proportion[i] * 100)) / 10000;
             uint256 fee = sentAmount / 10000;
             uint256 amountToSend = sentAmount - fee;
@@ -89,7 +89,10 @@ contract SwapperV2 is Initializable {
                     1,
                     1
                 );
-                tokenOut.transfer(msg.sender, tokenOut.balanceOf(address(this)));
+                tokenOut.transfer(
+                    msg.sender,
+                    tokenOut.balanceOf(address(this))
+                );
             }
         }
     }

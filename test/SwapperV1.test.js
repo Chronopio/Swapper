@@ -32,7 +32,7 @@ describe('Swapper contract', () => {
                     ['0x6B175474E89094C44Da98b954EedeAC495271d0F'],
                     [100]
                 )
-            ).to.be.revertedWith("The amount is too low");
+            ).to.be.revertedWith('The amount is too low');
         });
 
         it('should swap ETH for DAI', async () => {
