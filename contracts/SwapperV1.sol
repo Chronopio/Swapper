@@ -7,7 +7,7 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 /*  Proxies are completely oblivious to the existence of constructors. So we use initializer functions. OZ provides a contract for that */
 contract SwapperV1 is Initializable {
     // Avoiding initial values in field declarations. Constant state variables are still allowed and saves gas.
-    address public constant uniswapRouterAddress =
+    address private constant uniswapRouterAddress =
         0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address private constant feeRecipient =
         0xD215De1fc9E2514Cf274df3F2378597C7Be06Aca;
@@ -18,13 +18,12 @@ contract SwapperV1 is Initializable {
         address[] memory _token,
         uint256[] memory proportion
     ) external payable {
-        require(msg.value > 0, "You can't trade if you don't send money");
         require(
             _token.length == proportion.length,
             "You must set a proportion for each token"
         );
         require(
-            (msg.value / 10000) * 10000 == msg.value,
+            msg.value > 0 && (msg.value / 10000) * 10000 == msg.value,
             "The amount is too low"
         );
 
