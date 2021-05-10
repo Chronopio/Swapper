@@ -35,11 +35,11 @@ interface TokenInterface {
 }
 
 contract SwapperV2 is Initializable {
-    address public constant uniswapRouterAddress =
+    address private constant uniswapRouterAddress =
         0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address private constant feeRecipient =
         0xD215De1fc9E2514Cf274df3F2378597C7Be06Aca;
-    address public constant balancerRouterAddress =
+    address private constant balancerRouterAddress =
         0x3E66B66Fd1d0b02fDa6C811Da9E0547970DB2f21;
 
     function initialize() public initializer {}
@@ -49,17 +49,12 @@ contract SwapperV2 is Initializable {
         uint256[] memory proportion,
         bool[] memory isBetterUniswap
     ) external payable {
-        require(msg.value > 0, "You can't trade if you don't send money");
         require(
-            _token.length == proportion.length,
+            _token.length == proportion.length && _token.length == isBetterUniswap.length,
             "You must set a proportion for each token"
         );
         require(
-            _token.length == isBetterUniswap.length,
-            "You must set a proportion for each token"
-        );
-        require(
-            (msg.value / 10000) * 10000 == msg.value,
+            msg.value > 0 && (msg.value / 10000) * 10000 == msg.value,
             "The amount is too low"
         );
 
@@ -73,7 +68,7 @@ contract SwapperV2 is Initializable {
 
             payable(feeRecipient).transfer(fee);
 
-            if (isBetterUniswap[i] == true) {
+            if (isBetterUniswap[i]) {
                 address[] memory _path = new address[](2);
 
                 _path[0] = IUniswapV2Router02(uniswapRouterAddress).WETH();

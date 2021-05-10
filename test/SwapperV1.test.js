@@ -18,6 +18,11 @@ describe('Swapper contract', () => {
             erc20.bat.abi,
             owner
         );
+        zrxContract = new ethers.Contract(
+            erc20.zrx.address,
+            erc20.zrx.abi,
+            owner
+        );
     });
 
     describe('Swap', () => {
@@ -27,7 +32,7 @@ describe('Swapper contract', () => {
                     ['0x6B175474E89094C44Da98b954EedeAC495271d0F'],
                     [100]
                 )
-            ).to.be.revertedWith("You can't trade if you don't send money");
+            ).to.be.revertedWith("The amount is too low");
         });
 
         it('should swap ETH for DAI', async () => {
@@ -61,9 +66,7 @@ describe('Swapper contract', () => {
                 `DAI final balance ${daiBalanceEnd}`
             );
 
-            expect(parseFloat(daiBalanceEnd)).to.be.above(
-                parseFloat(daiBalanceStart)
-            );
+            expect(daiBalanceEnd > daiBalanceStart).to.be.true;
         });
 
         it('should send fee to a recipient', async () => {
@@ -88,10 +91,11 @@ describe('Swapper contract', () => {
 
             console.log('Initial owner balance', initialBalance.toString());
             console.log('Final owner balance', finalBalance.toString());
+
+            expect(finalBalance.gt(initialBalance)).to.be.true;
         });
 
         it('should be able to split the swaps into several tokens', async () => {
-            // 0x0d8775f648430679a709e98d2b0cb6250d2887ef
             const daiBalanceWeiStart = await daiContract.balanceOf(
                 owner.address
             );
@@ -106,19 +110,28 @@ describe('Swapper contract', () => {
                 batBalanceWeiStart,
                 18
             );
+            const zrxBalanceWeiStart = await zrxContract.balanceOf(
+                owner.address
+            );
+            const zrxBalanceStart = ethers.utils.formatUnits(
+                zrxBalanceWeiStart,
+                18
+            );
             console.log(
                 `BAT initial balance ${batBalanceStart}`,
-                `DAI initial balance ${daiBalanceStart}`
+                `DAI initial balance ${daiBalanceStart}`,
+                `ZRX initial balance ${zrxBalanceStart}`
             );
 
             await swapper.internalSwapper(
                 [
                     '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-                    '0x0d8775f648430679a709e98d2b0cb6250d2887ef'
+                    '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
+                    '0xE41d2489571d322189246DaFA5ebDe1F4699F498'
                 ],
-                [50, 50],
+                [30, 30, 40],
                 {
-                    value: ethers.utils.parseEther('0.001'),
+                    value: ethers.utils.parseEther('0.01'),
                     gasLimit: 1000000
                 }
             );
@@ -133,11 +146,20 @@ describe('Swapper contract', () => {
                 daiBalanceWeiEnd,
                 18
             );
+            const zrxBalanceWeiEnd = await zrxContract.balanceOf(owner.address);
+            const zrxBalanceEnd = ethers.utils.formatUnits(
+                zrxBalanceWeiEnd,
+                18
+            );
 
             console.log(
                 `BAT final balance ${batBalanceEnd}`,
-                `DAI final balance ${daiBalanceEnd}`
+                `DAI final balance ${daiBalanceEnd}`,
+                `ZRX final balance ${zrxBalanceEnd}`
             );
+            expect(daiBalanceEnd > daiBalanceStart).to.be.true;
+            expect(batBalanceEnd > batBalanceStart).to.be.true;
+            expect(zrxBalanceEnd > zrxBalanceStart).to.be.true;
         });
     });
 });

@@ -20,8 +20,8 @@ describe('Swapper upgrade', () => {
             owner
         );
         zrxContract = new ethers.Contract(
-            erc20.bal.address,
-            erc20.bal.abi,
+            erc20.zrx.address,
+            erc20.zrx.abi,
             owner
         );
     });
@@ -56,6 +56,8 @@ describe('Swapper upgrade', () => {
                 `DAI starter balance ${daiBalanceStart}`,
                 `DAI final balance ${daiBalanceEnd}`
             );
+
+            expect(daiBalanceEnd > daiBalanceStart).to.be.true;
         });
 
         it('should swap in Balancer', async () => {
@@ -87,6 +89,8 @@ describe('Swapper upgrade', () => {
                 `DAI starter balance ${daiBalanceStart}`,
                 `DAI final balance ${daiBalanceEnd}`
             );
+
+            expect(daiBalanceEnd > daiBalanceStart).to.be.true;
         });
 
         it('should send a fee to a recipient', async () => {
@@ -112,9 +116,11 @@ describe('Swapper upgrade', () => {
 
             console.log('Initial owner balance', initialBalance.toString());
             console.log('Final owner balance', finalBalance.toString());
+
+            expect(finalBalance.gt(initialBalance)).to.be.true;
         })
 
-        it('should select the best DEX to swap and send a swap request there', async () => {
+        it('should select the best DEX to swap and send a swap request there with 3 tokens', async () => {
             const daiBalanceWeiStart = await daiContract.balanceOf(
                 owner.address
             );
@@ -142,7 +148,7 @@ describe('Swapper upgrade', () => {
                 `ZRX initial balance ${zrxBalanceStart}`
             );
 
-            let tokensArray = ['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x0d8775f648430679a709e98d2b0cb6250d2887ef'];
+            let tokensArray = ['0x6B175474E89094C44Da98b954EedeAC495271d0F', '0x0d8775f648430679a709e98d2b0cb6250d2887ef', '0xE41d2489571d322189246DaFA5ebDe1F4699F498'];
             let dexArray = [];
             let response;
             let isBetterUniswap;
@@ -163,7 +169,7 @@ describe('Swapper upgrade', () => {
 
             await swapper.internalSwapper(
                 tokensArray,
-                [30,40],
+                [30,30,40],
                 dexArray,
                 {
                     value: ethers.utils.parseEther('0.01'),
@@ -192,6 +198,10 @@ describe('Swapper upgrade', () => {
                 `DAI final balance ${daiBalanceEnd}`,
                 `ZRX final balance ${zrxBalanceEnd}`
             );
+
+            expect(daiBalanceEnd > daiBalanceStart).to.be.true;
+            expect(batBalanceEnd > batBalanceStart).to.be.true;
+            expect(zrxBalanceEnd > zrxBalanceStart).to.be.true;
         })
     });
 });
