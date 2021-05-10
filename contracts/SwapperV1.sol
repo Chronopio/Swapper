@@ -17,13 +17,16 @@ contract SwapperV1 is Initializable {
     function internalSwapper(
         address[] memory _token,
         uint256[] memory proportion
-    ) public payable {
+    ) external payable {
         require(msg.value > 0, "You can't trade if you don't send money");
         require(
             _token.length == proportion.length,
             "You must set a proportion for each token"
         );
-        require((msg.value / 10000) * 10000 == msg.value, "");
+        require(
+            (msg.value / 10000) * 10000 == msg.value,
+            "The amount is too low"
+        );
 
         address[] memory _path = new address[](2);
         uint256 arrayLength = _token.length;
