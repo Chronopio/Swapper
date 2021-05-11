@@ -162,4 +162,53 @@ describe('Swapper contract', () => {
             expect(zrxBalanceEnd > zrxBalanceStart).to.be.true;
         });
     });
+
+    describe('Upgrade', () => {
+        it('should deploy and upgrade the contract', async () => {
+            const SwapperV1 = await ethers.getContractFactory('SwapperV1');
+            const SwapperV2 = await ethers.getContractFactory('SwapperV2');
+
+            const instance = await upgrades.deployProxy(SwapperV1, []);
+            const upgraded = await upgrades.upgradeProxy(
+                instance.address,
+                SwapperV2
+            );
+
+            console.log('Upgraded address:', upgraded.address);
+            console.log(
+                'We are going to test the upgraded instance using a test for the V2 contract'
+            );
+
+            const daiBalanceWeiStart = await daiContract.balanceOf(
+                owner.address
+            );
+            const daiBalanceStart = ethers.utils.formatUnits(
+                daiBalanceWeiStart,
+                18
+            );
+
+            await upgraded.internalSwapper(
+                ['0x6B175474E89094C44Da98b954EedeAC495271d0F'],
+                [100],
+                [true],
+                {
+                    value: ethers.utils.parseEther('0.001'),
+                    gasLimit: 1000000
+                }
+            );
+
+            const daiBalanceWeiEnd = await daiContract.balanceOf(owner.address);
+            const daiBalanceEnd = ethers.utils.formatUnits(
+                daiBalanceWeiEnd,
+                18
+            );
+
+            console.log(
+                `DAI starter balance ${daiBalanceStart}`,
+                `DAI final balance ${daiBalanceEnd}`
+            );
+
+            expect(daiBalanceEnd > daiBalanceStart).to.be.true;
+        });
+    });
 });
