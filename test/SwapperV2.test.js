@@ -176,7 +176,6 @@ describe('Swapper upgrade', () => {
 
                 dexArray.push(isBetterUniswap);
             }
-            console.log(dexArray);
 
             await swapper.internalSwapper(tokensArray, [30, 30, 40], dexArray, {
                 value: ethers.utils.parseEther('0.01'),
