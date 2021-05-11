@@ -6,7 +6,9 @@
   "scripts": {
     "test": "hardhat test",
     "compile": "hardhat compile",
-    "deploy": "hardhat run scripts/deploy.js",
+    "deploy": "hardhat deploy",
+    "deploy-upgradeable": "hardhat run scripts/deploy_upgradeable_swapperv1.js",
+    "upgrade": "hardhat run scripts/upgrade_swapperv1.js",
     "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "keywords": [],

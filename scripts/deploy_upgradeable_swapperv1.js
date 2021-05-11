@@ -6,6 +6,6 @@ const main = async () => {
         initializer: 'initialize'
     });
     await adminSwapper.deployed();
-    console.log(`AdminSwapper deployed to: ${AdminSwapper.address}`);
+    console.log(`AdminSwapper deployed to: ${adminSwapper.address}`);
 };
 main();
