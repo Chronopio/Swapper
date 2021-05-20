@@ -22,6 +22,7 @@ contract SwapperV1 is Initializable {
             _token.length == proportion.length,
             "You must set a proportion for each token"
         );
+        // Restriction to be abel to calculate percentages properly
         require(
             msg.value > 0 && (msg.value / 10000) * 10000 == msg.value,
             "The amount is too low"
